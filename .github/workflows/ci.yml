@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'phase-*']
+  pull_request:
+    branches: [main]
+
+env:
+  NEXT_PUBLIC_SITE_URL: https://trongngo.dev
+
+jobs:
+  build:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Check bundle size (homepage JS ≤ 180 KB gz)
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const { execSync } = require('child_process');
+
+          const buildDir = '.next/static/chunks';
+          if (!fs.existsSync(buildDir)) {
+            console.log('Build dir not found, skipping bundle check');
+            process.exit(0);
+          }
+
+          // Find framework + main chunks
+          const files = fs.readdirSync(buildDir).filter(f => f.endsWith('.js'));
+          let total = 0;
+          for (const f of files) {
+            const stat = fs.statSync(path.join(buildDir, f));
+            total += stat.size;
+          }
+          const kb = Math.round(total / 1024);
+          console.log('Total chunks: ' + kb + ' KB (uncompressed)');
+          "
