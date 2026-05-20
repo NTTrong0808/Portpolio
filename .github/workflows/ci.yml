@@ -36,27 +36,29 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Check bundle size (homepage JS ≤ 180 KB gz)
+      - name: Check bundle size (shared JS ≤ 180 KB gz)
         run: |
           node -e "
           const fs = require('fs');
           const path = require('path');
           const zlib = require('zlib');
 
-          const manifestPath = '.next/app-build-manifest.json';
+          // Next.js 16 Turbopack: app-build-manifest.json does not exist.
+          // Use build-manifest.json rootMainFiles — the shared chunks loaded on every page.
+          const manifestPath = '.next/build-manifest.json';
           if (!fs.existsSync(manifestPath)) {
-            console.error('app-build-manifest.json not found');
+            console.error('build-manifest.json not found');
             process.exit(1);
           }
           const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-          const homeChunks = manifest.pages['/'] || manifest.pages['/(root)'] || [];
-          if (homeChunks.length === 0) {
-            console.error('No homepage chunks in app-build-manifest.json');
+          const chunks = manifest.rootMainFiles || [];
+          if (chunks.length === 0) {
+            console.error('No rootMainFiles in build-manifest.json');
             process.exit(1);
           }
 
           let totalGz = 0;
-          for (const rel of homeChunks) {
+          for (const rel of chunks) {
             const abs = path.join('.next', rel.replace(/^\\/_next\\//, ''));
             if (!fs.existsSync(abs)) continue;
             const buf = fs.readFileSync(abs);
@@ -65,7 +67,7 @@ jobs:
 
           const kb = Math.round(totalGz / 1024);
           const limit = 180;
-          console.log('Homepage initial JS (gz): ' + kb + ' KB / ' + limit + ' KB limit');
+          console.log('Shared initial JS (gz): ' + kb + ' KB / ' + limit + ' KB limit');
           if (kb > limit) {
             console.error('FAIL: bundle exceeds ' + limit + ' KB gz limit');
             process.exit(1);
