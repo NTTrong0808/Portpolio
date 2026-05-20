@@ -38,21 +38,34 @@ jobs:
           node -e "
           const fs = require('fs');
           const path = require('path');
-          const { execSync } = require('child_process');
+          const zlib = require('zlib');
 
-          const buildDir = '.next/static/chunks';
-          if (!fs.existsSync(buildDir)) {
-            console.log('Build dir not found, skipping bundle check');
-            process.exit(0);
+          const manifestPath = '.next/app-build-manifest.json';
+          if (!fs.existsSync(manifestPath)) {
+            console.error('app-build-manifest.json not found');
+            process.exit(1);
+          }
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+          const homeChunks = manifest.pages['/'] || manifest.pages['/(root)'] || [];
+          if (homeChunks.length === 0) {
+            console.error('No homepage chunks in app-build-manifest.json');
+            process.exit(1);
           }
 
-          // Find framework + main chunks
-          const files = fs.readdirSync(buildDir).filter(f => f.endsWith('.js'));
-          let total = 0;
-          for (const f of files) {
-            const stat = fs.statSync(path.join(buildDir, f));
-            total += stat.size;
+          let totalGz = 0;
+          for (const rel of homeChunks) {
+            const abs = path.join('.next', rel.replace(/^\\/_next\\//, ''));
+            if (!fs.existsSync(abs)) continue;
+            const buf = fs.readFileSync(abs);
+            totalGz += zlib.gzipSync(buf).length;
           }
-          const kb = Math.round(total / 1024);
-          console.log('Total chunks: ' + kb + ' KB (uncompressed)');
+
+          const kb = Math.round(totalGz / 1024);
+          const limit = 180;
+          console.log('Homepage initial JS (gz): ' + kb + ' KB / ' + limit + ' KB limit');
+          if (kb > limit) {
+            console.error('FAIL: bundle exceeds ' + limit + ' KB gz limit');
+            process.exit(1);
+          }
+          console.log('PASS');
           "

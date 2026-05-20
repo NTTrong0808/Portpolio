@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { startTransition } from 'react'
 import { useTheme, Theme } from '@/lib/theme/provider'
 import { ThemeSwatch } from '@/components/atoms/ThemeSwatch'
 import { usePrefersReducedMotion } from '@/lib/hooks/use-prefers-reduced-motion'
@@ -56,10 +55,10 @@ export function ThemePicker() {
   }
 
   function handleSelect(t: Theme) {
-    if (reduced) {
-      setTheme(t)
+    if (!reduced && document.startViewTransition) {
+      document.startViewTransition(() => setTheme(t))
     } else {
-      startTransition(() => setTheme(t))
+      setTheme(t)
     }
     close()
   }

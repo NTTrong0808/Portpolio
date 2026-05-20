@@ -1,0 +1,31 @@
+---
+slug: performance-audit
+title: "E-Commerce Performance Audit"
+description: "Identified and resolved Core Web Vitals regressions on a high-traffic e-commerce storefront, bringing LCP from 4.8 s to 1.9 s and boosting conversion rate."
+role: "Performance Engineer"
+year: 2024
+tags: ["Next.js", "Lighthouse", "Web Vitals", "Image Optimization", "Edge Caching"]
+status: published
+featured: false
+order: 2
+---
+
+<Chapter title="Problem">
+
+A product-listing page was showing LCP of 4.8 s on mobile. Cart conversion was 12% below target.
+
+</Chapter>
+
+<Chapter title="Diagnosis">
+
+Waterfall analysis revealed a render-blocking third-party script, unoptimized hero images, and a missing edge-cache layer on the product API.
+
+</Chapter>
+
+<Chapter title="Resolution">
+
+Deferred the third-party script, switched hero images to next/image with priority, and added a Vercel Edge Config cache for product data.
+
+LCP dropped to 1.9 s. Conversion recovered to target within two weeks.
+
+</Chapter>

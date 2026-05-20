@@ -17,7 +17,7 @@ export function createParticleField(canvas: HTMLCanvasElement, accentColor: stri
     const dpr = window.devicePixelRatio || 1
     canvas.width = canvas.offsetWidth * dpr
     canvas.height = canvas.offsetHeight * dpr
-    ctx.scale(dpr, dpr)
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     init()
   }
 
@@ -99,14 +99,14 @@ export function createParticleField(canvas: HTMLCanvasElement, accentColor: stri
 
   function start() {
     resize()
-    canvas.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('resize', resize)
     animId = requestAnimationFrame(draw)
   }
 
   function stop() {
     cancelAnimationFrame(animId)
-    canvas.removeEventListener('mousemove', onMouseMove)
+    window.removeEventListener('mousemove', onMouseMove)
     window.removeEventListener('resize', resize)
   }
 

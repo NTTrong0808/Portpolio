@@ -17,8 +17,6 @@ export function HeroCanvas() {
     return () => field.stop()
   }, [reduced])
 
-  if (reduced) return null
-
   return (
     <canvas
       ref={canvasRef}

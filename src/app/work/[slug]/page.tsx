@@ -9,22 +9,13 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  try {
-    const items = getPublishedWork()
-    return items.map((item) => ({ slug: item.slug }))
-  } catch {
-    return []
-  }
+  const items = getPublishedWork()
+  return items.map((item) => ({ slug: item.slug }))
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  let project
-  try {
-    project = getWorkBySlug(slug)
-  } catch {
-    return {}
-  }
+  const project = getWorkBySlug(slug)
   if (!project) return {}
   return {
     title: project.title,
@@ -34,12 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function WorkPage({ params }: PageProps) {
   const { slug } = await params
-  let raw
-  try {
-    raw = getWorkBySlug(slug)
-  } catch {
-    notFound()
-  }
+  const raw = getWorkBySlug(slug)
   if (!raw) notFound()
 
   // Normalize Velite Image to string src
