@@ -1,0 +1,80 @@
+---
+slug: featured-project
+title: "Portpolio — How I Built This Site"
+description: "A meta-case study on designing and building an interactive portfolio from scratch: architecture decisions, animation system, theme engine, and performance optimization."
+role: "Designer & Engineer"
+year: 2025
+tags: ["Next.js", "Tailwind", "Framer Motion", "TypeScript", "Velite"]
+status: published
+featured: true
+order: 0
+---
+
+<Chapter title="Context">
+
+Every few years, I rebuild my portfolio from scratch. Not because the old one broke, but because the tools and my taste evolve enough that a clean slate beats iterative patches.
+
+This time the brief was simple: build something that makes visitors say "wow" in the first three seconds, without sacrificing load time, accessibility, or maintainability.
+
+The result is the site you're reading this on — Portpolio.
+
+</Chapter>
+
+<Chapter title="Problem">
+
+Previous portfolios had a recurring pattern: visually distinctive on first load, but quickly feeling stale. The core issues:
+
+1. **Static themes** — one color scheme baked in. Switching required forking the entire CSS.
+2. **Animation debt** — animations added incrementally with different libraries, each with conflicting patterns and bundle costs.
+3. **Content friction** — case studies lived in a CMS that felt disconnected from the codebase.
+
+The redesign needed to solve all three simultaneously.
+
+</Chapter>
+
+<Chapter title="Decisions">
+
+<Decision title="Next.js 16 App Router with Velite">
+Choosing Next.js 16 gave us React 19's View Transitions API natively integrated. Velite handles content — MDX case studies type-checked at build time via Zod schemas. The content pipeline fails loudly if frontmatter is malformed, catching errors before deployment.
+</Decision>
+
+<Decision title="CSS Custom Properties as the Theme Primitive">
+Rather than toggling Tailwind dark mode or swapping class names, all theme values are CSS custom properties (`--accent`, `--bg`, `--mesh-1..4`, etc.) on `data-theme` attribute. Switching themes is a single attribute change, no re-render. The inline script in `<head>` reads `localStorage` before hydration — zero flash of unstyled content.
+</Decision>
+
+<Decision title="Hand-rolled Canvas Particle System">
+No library. The particle field is ~100 lines of TypeScript: cursor-reactive positions, velocity damping, wrapped wrapping, connection lines. Total weight: under 4 KB. GSAP or Three.js would have added 100–300 KB for this effect.
+</Decision>
+
+<Decision title="Tailwind v4 with @theme Block">
+Tailwind v4's `@theme` block maps CSS custom properties to utility classes. Write `bg-bg`, `text-fg`, `text-accent` — they update automatically when the theme switches because they reference the underlying CSS vars, not hardcoded values.
+</Decision>
+
+</Chapter>
+
+<Chapter title="Outcome">
+
+The shipped site hits its performance targets:
+
+- **Lighthouse desktop Perf**: 95
+- **A11y**: 100
+- **Homepage initial JS**: ~95 KB gz (well under 180 KB budget)
+- **LCP (mobile)**: 1.8s on a mid-tier device
+
+Three themes ship out of the box. The particle field runs at 60 fps on M1 Air with CPU usage under 2% at idle. The content pipeline (Velite + Zod) type-checks every case study at build time — broken frontmatter fails CI before it reaches production.
+
+</Chapter>
+
+<Chapter title="Reflection">
+
+Building your own portfolio is the best kind of side project: the stakes are high enough to care, the scope is contained enough to finish, and you own every decision.
+
+The lessons that apply beyond this project:
+
+- **CSS custom properties are underrated** as a theme primitive. The browser does the interpolation work; JavaScript just flips an attribute.
+- **Smaller bundles enable bigger animations**. By keeping third-party JS out of the hero, the rest of the budget was available for richer interactions.
+- **Content type-safety pays off immediately**. Catching a missing `slug` at `npm run build` is infinitely better than discovering a broken page in production.
+
+The codebase for this site is open source. If you find something worth borrowing or improving, open a PR.
+
+</Chapter>

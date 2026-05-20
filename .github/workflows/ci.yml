@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'phase-*']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  NEXT_PUBLIC_SITE_URL: https://trongngo.dev
+
+jobs:
+  build:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Generate Velite types
+        run: npx velite build
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Check bundle size (homepage JS ≤ 180 KB gz)
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const zlib = require('zlib');
+
+          // Next.js 16 + Turbopack does not emit app-build-manifest.json.
+          // Parse the pre-rendered HTML to discover the exact scripts the
+          // browser downloads for the homepage.  Scripts tagged noModule are
+          // legacy-browser polyfills; modern browsers (and Lighthouse) skip
+          // them, so they are excluded from the budget.
+          const htmlPath = '.next/server/app/index.html';
+          if (!fs.existsSync(htmlPath)) {
+            console.error('index.html not found — run npm run build first');
+            process.exit(1);
+          }
+          const html = fs.readFileSync(htmlPath, 'utf8');
+
+          const homeChunks = [];
+          for (const m of html.matchAll(/<script([^>]*)>/g)) {
+            const attrs = m[1];
+            if (/noModule/i.test(attrs)) continue;
+            const srcMatch = attrs.match(/src=\"\\/_next\\/static\\/chunks\\/([^\"]+)\"/);
+            if (srcMatch) homeChunks.push('static/chunks/' + srcMatch[1]);
+          }
+
+          if (homeChunks.length === 0) {
+            console.error('No homepage chunks found in index.html');
+            process.exit(1);
+          }
+
+          let totalGz = 0;
+          for (const rel of homeChunks) {
+            const abs = path.join('.next', rel);
+            if (!fs.existsSync(abs)) continue;
+            const buf = fs.readFileSync(abs);
+            totalGz += zlib.gzipSync(buf).length;
+          }
+
+          const kb = Math.round(totalGz / 1024);
+          const limit = 180;
+          console.log('Homepage initial JS (gz): ' + kb + ' KB / ' + limit + ' KB limit');
+          if (kb > limit) {
+            console.error('FAIL: bundle exceeds ' + limit + ' KB gz limit');
+            process.exit(1);
+          }
+          console.log('PASS');
+          "
