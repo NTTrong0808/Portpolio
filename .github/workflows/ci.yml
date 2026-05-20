@@ -30,6 +30,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Generate Velite types
+        run: npx velite build
+
       - name: Type-check
         run: npx tsc --noEmit
 
