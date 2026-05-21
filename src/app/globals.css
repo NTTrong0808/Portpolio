@@ -125,3 +125,35 @@ body {
   background: var(--border);
   border-radius: 3px;
 }
+
+/* === Bundle B === */
+
+/* Lenis smooth scroll override — prevent double-scroll on touch */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* Text-reveal character spans baseline alignment fix */
+[data-char] {
+  vertical-align: baseline;
+  white-space: pre;
+}
+
+/* Chapter body: initial opacity set via inline style in Chapter.tsx to prevent FOUC */
+
+/* 404 block-char ASCII — crisp rendering across all themes */
+.ascii-404 {
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0;
+  letter-spacing: 0;
+  line-height: 1.15;
+}

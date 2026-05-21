@@ -1,0 +1,74 @@
+---
+slug: case-2
+title: "Real-Time Collaboration Dashboard"
+description: "Designed and built a live data dashboard for distributed operations teams, handling 10k+ concurrent connections with sub-200ms update latency."
+role: "Frontend Engineer"
+year: 2024
+tags: ["React", "WebSockets", "TypeScript", "D3.js", "Redis"]
+status: published
+featured: false
+order: 4
+---
+
+<Chapter title="Overview">
+
+Distributed teams working across time zones need a shared view of operational state — not a report generated hours ago, but a live picture of what's happening right now. This project replaced a patchwork of spreadsheets and Slack threads with a single, always-live operations surface.
+
+The dashboard became the team's primary coordination tool within three weeks of launch, used by 240 operators across four regions.
+
+</Chapter>
+
+<Chapter title="Problem">
+
+The operations team was coordinating across a patchwork of tools: a legacy reporting database (refreshed hourly), Slack channels for urgent alerts, and shared Google Sheets that went stale within minutes of being opened. During high-traffic periods, the lag between a real-world event and the team's awareness of it averaged 14 minutes.
+
+Two incidents in Q3 — one a missed SLA breach, one a routing failure caught too late — created executive buy-in for a real-time solution.
+
+The brief: build something that shows what's happening now, not what happened an hour ago.
+
+</Chapter>
+
+<Chapter title="Architecture">
+
+The core technical challenge was fanout: thousands of events per second needed to reach hundreds of browser clients with minimal latency. The solution used a tiered approach:
+
+**Ingestion layer** — Event producers write to a Redis Streams topic. A stateless consumer service processes and normalizes events, filtering noise before it reaches clients.
+
+**Delivery layer** — WebSocket connections are load-balanced across a pool of Node.js servers. Each server maintains a subscription map: client → channels of interest. Server-side filtering means each client only receives updates relevant to their view.
+
+**Client layer** — React with a custom subscription hook handles connection lifecycle (reconnect with exponential backoff, stale-while-revalidate on reconnect). D3.js renders time-series sparklines for operational metrics. Updates are batched in 100ms windows to avoid layout thrash on high-volume feeds.
+
+Measured end-to-end latency from event emission to browser render: **p50 = 84ms, p99 = 210ms**.
+
+</Chapter>
+
+<Chapter title="Design Decisions">
+
+Live data surfaces have a counterintuitive UX challenge: too much motion is as bad as too little. If every cell in a table flashes on update, users lose the ability to track anything.
+
+The design used a "calm technology" principle: changes are indicated by subtle value transitions (number counts up/down over 300ms), not by flashing backgrounds or alert sounds. Color is reserved for threshold breaches only — green/yellow/red applied to metric cells when values cross defined SLA bands.
+
+The information hierarchy was tested with six operators during a structured task session. The final layout surfaces the three most-watched metrics in a persistent header strip visible at all scroll depths, with detailed breakdowns below.
+
+</Chapter>
+
+<Chapter title="Outcome">
+
+The dashboard rolled out to the full operations team 8 weeks after kickoff.
+
+- **Mean time to awareness** (event → operator action): 14 min → 1.2 min
+- **Incident response time**: −43% in first month post-launch
+- **Spreadsheet usage** (tracked via access logs): dropped 94% in 6 weeks
+- **Adoption**: 100% of ops team using it as primary surface within 3 weeks
+
+The architecture has scaled to support 3× the initial load without configuration changes. The WebSocket pool autoscales based on connection count.
+
+</Chapter>
+
+<Chapter title="Reflection">
+
+The hardest part of a real-time dashboard isn't the data pipeline — it's the visual design. The instinct is to make the "live-ness" visible everywhere. The better answer is to make it invisible unless something needs attention.
+
+The subscription hook abstraction ended up being the most reused piece of this project. It's been extracted to a shared library and is now used in two other internal tools. The pattern — reconnect-aware WebSocket with channel-level filtering and stale cache on disconnect — applies broadly to any live data surface.
+
+</Chapter>
