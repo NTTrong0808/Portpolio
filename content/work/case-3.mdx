@@ -1,0 +1,67 @@
+---
+slug: case-3
+title: "Mobile-First Checkout Redesign"
+description: "Rebuilt a fragmented checkout flow for a consumer brand, increasing mobile conversion by 28% and cutting cart abandonment at payment step by half."
+role: "UX Engineer"
+year: 2023
+tags: ["UX Engineering", "Next.js", "A/B Testing", "Web Vitals", "Stripe"]
+status: published
+featured: false
+order: 5
+---
+
+<Chapter title="Background">
+
+Checkout is where trust is either earned or lost. For a direct-to-consumer brand doing most of its business on mobile, a checkout flow that was ported from desktop without rethinking the interaction model was quietly hemorrhaging revenue.
+
+The engagement was a focused 10-week sprint: audit the existing flow, identify the highest-impact friction points, redesign and rebuild with A/B testing infrastructure in place from day one.
+
+</Chapter>
+
+<Chapter title="What Broke">
+
+A session recording analysis of 2,400 checkout sessions revealed a consistent pattern: users who reached the payment step completed at 61%. Users who abandoned at payment cited two issues in follow-up surveys: "didn't feel secure" and "too many steps."
+
+The existing flow had seven screens between cart and confirmation. The address form was a ported desktop layout — four fields in a row, thumb-unfriendly — and the payment step loaded a third-party iframe that had a noticeably different visual style than the rest of the brand.
+
+Lighthouse on a mid-tier Android: **LCP 4.1s on the checkout page.** The page was shipping 340KB of unoptimized JavaScript, including a payment library that could have been deferred until the user reached that step.
+
+</Chapter>
+
+<Chapter title="Approach">
+
+The redesign had two tracks running in parallel:
+
+**Track 1 — Performance.** Code-split the payment library behind a dynamic import. Lazy-load non-critical assets below the fold. Move address validation from client-side regex to a lightweight edge function (faster feedback, less JS shipped). Result: LCP dropped to **1.7s**.
+
+**Track 2 — UX.** Collapsed seven screens to four using progressive disclosure. The address form was rebuilt as a single-column stacked layout optimized for thumb reach zones. Stripe Elements was re-themed to match brand typography and color — the iframe content now looks like it belongs.
+
+Added a persistent progress indicator (step 1 of 4) so users always know where they are in the flow. Added autofill-friendly `autocomplete` attributes on every field (obvious in retrospect, but absent from the original).
+
+An A/B test ran for three weeks with a 50/50 split.
+
+</Chapter>
+
+<Chapter title="Results">
+
+The test reached statistical significance (95%) in week two.
+
+- **Mobile conversion rate:** +28% (variant vs. control)
+- **Cart abandonment at payment step:** −51%
+- **Checkout LCP (mobile):** 4.1s → 1.7s
+- **Average checkout duration:** 4.2 min → 2.1 min
+- **Support tickets: "payment not working"** (mostly user frustration, not actual errors): −63%
+
+The variant was fully shipped at end of week three. Annualized revenue impact based on conversion lift: significant enough to fully fund a second engineering sprint on the account page.
+
+</Chapter>
+
+<Chapter title="Takeaways">
+
+Checkout UX is part perception, part performance. The security perception gap — users who said it "didn't feel secure" — wasn't about the actual security of the implementation. It was about the visual mismatch between the brand page and the payment iframe. Solving that was mostly a theming exercise, but it moved conversion.
+
+The biggest performance win was the deferred payment library import. The library was ~140KB of JavaScript that every user was forced to download before they'd even seen the address form. Dynamic importing it dropped that weight from the initial load completely.
+
+Invest in autocomplete. It's the easiest checkout improvement no one does.
+
+</Chapter>

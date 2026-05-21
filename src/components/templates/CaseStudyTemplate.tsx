@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { MDXContent } from '@/components/mdx/MDXContent'
+import { ScrollCleanup } from '@/components/atoms/ScrollCleanup'
 
 interface Project {
   title: string
@@ -15,6 +16,8 @@ interface Project {
 export function CaseStudyTemplate({ project }: { project: Project }) {
   return (
     <article className="min-h-screen pt-16">
+      <ScrollCleanup />
+
       {/* Hero */}
       <div className="relative h-[50vh] min-h-[320px] overflow-hidden">
         {project.cover ? (
