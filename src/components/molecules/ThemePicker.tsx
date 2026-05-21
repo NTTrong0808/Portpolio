@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTheme, Theme } from '@/lib/theme/provider'
 import { ThemeSwatch } from '@/components/atoms/ThemeSwatch'
 import { usePrefersReducedMotion } from '@/lib/hooks/use-prefers-reduced-motion'
+import { trackThemeChanged } from '@/lib/analytics'
 
 export function ThemePicker() {
   const { theme, setTheme, themes } = useTheme()
@@ -55,10 +56,14 @@ export function ThemePicker() {
   }
 
   function handleSelect(t: Theme) {
-    if (!reduced && document.startViewTransition) {
-      document.startViewTransition(() => setTheme(t))
-    } else {
+    const applyTheme = () => {
       setTheme(t)
+      trackThemeChanged(t, 'picker')
+    }
+    if (!reduced && document.startViewTransition) {
+      document.startViewTransition(applyTheme)
+    } else {
+      applyTheme()
     }
     close()
   }

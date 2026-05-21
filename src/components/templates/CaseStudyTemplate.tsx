@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { MDXContent } from '@/components/mdx/MDXContent'
 
 interface Project {
+  slug: string
   title: string
   description: string
   role: string
@@ -15,8 +16,11 @@ interface Project {
 export function CaseStudyTemplate({ project }: { project: Project }) {
   return (
     <article className="min-h-screen pt-16">
-      {/* Hero */}
-      <div className="relative h-[50vh] min-h-[320px] overflow-hidden">
+      {/* Hero — view transition name matches ProjectCard for same-name morph */}
+      <div
+        className="relative h-[50vh] min-h-[320px] overflow-hidden"
+        style={{ viewTransitionName: `project-card-image-${project.slug}` }}
+      >
         {project.cover ? (
           <Image
             src={project.cover}

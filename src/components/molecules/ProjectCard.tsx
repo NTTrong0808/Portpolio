@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { NavLink as Link } from '@/components/atoms/Link'
 import Image from 'next/image'
 import { useRef, MouseEvent } from 'react'
 import { usePrefersReducedMotion } from '@/lib/hooks/use-prefers-reduced-motion'
@@ -57,7 +57,10 @@ export function ProjectCard({
         className="group block rounded-2xl border border-border bg-surface hover:border-accent/40 transition-colors overflow-hidden"
       >
         {/* Cover image */}
-        <div className="relative aspect-[16/9] bg-surface-raised overflow-hidden">
+        <div
+          className="relative aspect-[16/9] bg-surface-raised overflow-hidden"
+          style={{ viewTransitionName: `project-card-image-${slug}` }}
+        >
           {cover ? (
             <Image
               src={cover}

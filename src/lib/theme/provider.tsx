@@ -2,9 +2,9 @@
 
 import { createContext, useContext, useState, useCallback } from 'react'
 
-export type Theme = 'default' | 'midnight' | 'sunset'
+export type Theme = 'default' | 'midnight' | 'sunset' | 'terminal' | 'paper' | 'cyberpunk' | 'mono'
 
-const THEMES: Theme[] = ['default', 'midnight', 'sunset']
+const THEMES: Theme[] = ['default', 'midnight', 'sunset', 'terminal', 'paper', 'cyberpunk', 'mono']
 const STORAGE_KEY = 'portpolio-theme'
 const DEFAULT_THEME: Theme = 'default'
 

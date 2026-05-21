@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, 'phase-*']
+    branches: [main, 'phase-**']
   pull_request:
-    branches: [main]
+    branches: [main, 'phase-**']
 
 permissions:
   contents: read
@@ -25,7 +25,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Lint
         run: npm run lint

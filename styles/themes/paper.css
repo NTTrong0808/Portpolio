@@ -1,0 +1,15 @@
+/* === Bundle A === */
+/* Paper theme — warm off-white on deep charcoal. WCAG AA verified. */
+[data-theme='paper'] {
+  --bg: #f5f0e8;
+  --fg: #1a1410;
+  --fg-muted: #6b5d4f;
+  --accent: #c0392b;
+  --border: #d8cfc4;
+  --surface: #ede8df;
+  --surface-raised: #e5dfd5;
+  --mesh-1: #c0392b;
+  --mesh-2: #e67e22;
+  --mesh-3: #8e44ad;
+  --mesh-4: #f5f0e8;
+}
