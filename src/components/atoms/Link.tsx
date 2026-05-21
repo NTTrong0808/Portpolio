@@ -1,8 +1,10 @@
 'use client'
 
 import NextLink from 'next/link'
-import { ComponentProps, MouseEvent } from 'react'
+import { ComponentProps, MouseEvent, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { flushSync } from 'react-dom'
+import { usePrefersReducedMotion } from '@/lib/hooks/use-prefers-reduced-motion'
 
 type LinkProps = ComponentProps<typeof NextLink>
 
@@ -17,20 +19,31 @@ function isExternalHref(href: string | object): boolean {
 
 export function NavLink({ href, onClick, children, ...props }: LinkProps) {
   const router = useRouter()
+  const reduced = usePrefersReducedMotion()
+  const [, startReact] = useTransition()
 
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
+    if (e.button !== 0) return
     onClick?.(e)
     if (e.defaultPrevented) return
     if (isModifiedClick(e)) return
     if (isExternalHref(href as string)) return
-    if (!document.startViewTransition) return
 
-    // Anchor links (#...) skip the transition
     if (typeof href === 'string' && href.startsWith('#')) return
 
-    e.preventDefault()
-    document.startViewTransition(() => {
+    if (reduced || !document.startViewTransition) {
+      e.preventDefault()
       router.push(href as string)
+      return
+    }
+
+    e.preventDefault()
+    startReact(() => {
+      document.startViewTransition(async () => {
+        flushSync(() => {
+          router.push(href as string)
+        })
+      })
     })
   }
 

@@ -23,11 +23,16 @@ const THEME_SWATCH_COLORS: Record<string, { bg: string; accent: string }> = {
   mono: { bg: '#0d0d0d', accent: '#c0c0c0' },
 }
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
   const reduced = usePrefersReducedMotion()
   const inputRef = useRef<HTMLInputElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
 
   const close = useCallback(() => onOpenChange(false), [onOpenChange])
 
@@ -66,10 +71,42 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onOpenChange, close])
 
-  // Focus input when opened
+  // Focus trap + body scroll lock
   useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 10)
+    if (!open) return
+
+    previousFocusRef.current = document.activeElement as HTMLElement
+    document.body.style.overflow = 'hidden'
+
+    requestAnimationFrame(() => inputRef.current?.focus())
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Tab' || !panelRef.current) return
+      const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (el) => !el.hasAttribute('disabled') && el.offsetParent !== null,
+      )
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = ''
+      previousFocusRef.current?.focus()
+      previousFocusRef.current = null
     }
   }, [open])
 
@@ -90,7 +127,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       />
 
       {/* Panel */}
-      <div className="relative w-full max-w-lg mx-4">
+      <div ref={panelRef} className="relative w-full max-w-lg mx-4">
         <Command
           className="rounded-xl border border-border bg-surface-raised shadow-2xl overflow-hidden"
           shouldFilter={true}
