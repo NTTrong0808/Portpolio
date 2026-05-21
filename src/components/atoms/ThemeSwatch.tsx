@@ -6,6 +6,10 @@ const THEME_COLORS: Record<Theme, { bg: string; accent: string; label: string }>
   default: { bg: '#0a0a0f', accent: '#6366f1', label: 'Default' },
   midnight: { bg: '#050510', accent: '#3b82f6', label: 'Midnight' },
   sunset: { bg: '#0f0806', accent: '#f97316', label: 'Sunset' },
+  terminal: { bg: '#030d03', accent: '#00ff41', label: 'Terminal' },
+  paper: { bg: '#f5f0e8', accent: '#c0392b', label: 'Paper' },
+  cyberpunk: { bg: '#060010', accent: '#ff007f', label: 'Cyberpunk' },
+  mono: { bg: '#0d0d0d', accent: '#c0c0c0', label: 'Mono' },
 }
 
 interface ThemeSwatchProps {

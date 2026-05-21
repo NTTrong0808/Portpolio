@@ -1,4 +1,8 @@
 @import 'tailwindcss';
+@import '../../styles/themes/terminal.css';
+@import '../../styles/themes/paper.css';
+@import '../../styles/themes/cyberpunk.css';
+@import '../../styles/themes/mono.css';
 
 @theme {
   --color-bg: var(--bg);
@@ -113,6 +117,22 @@ body {
   animation-duration: 400ms;
   animation-timing-function: ease-in-out;
 }
+
+/* === Bundle A === */
+/* Same-name morph: ProjectCard image → CaseStudy hero image */
+::view-transition-old(project-card-image),
+::view-transition-new(project-card-image) {
+  animation-duration: 350ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Page-level crossfade for route transitions */
+::view-transition-old(page-content),
+::view-transition-new(page-content) {
+  animation-duration: 250ms;
+  animation-timing-function: ease-out;
+}
+/* === /Bundle A === */
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {

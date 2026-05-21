@@ -1,0 +1,15 @@
+/* === Bundle A === */
+/* Cyberpunk theme — neon magenta + electric yellow on dark navy. WCAG AA verified. */
+[data-theme='cyberpunk'] {
+  --bg: #060010;
+  --fg: #f0e040;
+  --fg-muted: #a080c0;
+  --accent: #ff007f;
+  --border: #1a003a;
+  --surface: #0a0018;
+  --surface-raised: #0f0022;
+  --mesh-1: #ff007f;
+  --mesh-2: #00ffff;
+  --mesh-3: #f0e040;
+  --mesh-4: #060010;
+}

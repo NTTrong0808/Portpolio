@@ -17,9 +17,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params
   const project = getWorkBySlug(slug)
   if (!project) return {}
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://trongngo.dev'
+  const ogUrl = `${siteUrl}/api/og?slug=${slug}&title=${encodeURIComponent(project.title)}&description=${encodeURIComponent(project.description)}`
   return {
     title: project.title,
     description: project.description,
+    openGraph: {
+      images: [{ url: ogUrl, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [ogUrl],
+    },
   }
 }
 
@@ -31,6 +40,7 @@ export default async function WorkPage({ params }: PageProps) {
   // Normalize Velite Image to string src
   const project = {
     ...raw,
+    slug,
     cover: raw.cover?.src,
   }
 

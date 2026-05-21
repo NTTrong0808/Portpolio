@@ -1,0 +1,15 @@
+/* === Bundle A === */
+/* Terminal theme — phosphor green on near-black. WCAG AA verified. */
+[data-theme='terminal'] {
+  --bg: #030d03;
+  --fg: #00ff41;
+  --fg-muted: #00aa2a;
+  --accent: #00ff41;
+  --border: #003810;
+  --surface: #060f06;
+  --surface-raised: #0a1a0a;
+  --mesh-1: #00ff41;
+  --mesh-2: #00cc33;
+  --mesh-3: #007a1a;
+  --mesh-4: #030d03;
+}

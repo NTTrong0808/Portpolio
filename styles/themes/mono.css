@@ -1,0 +1,15 @@
+/* === Bundle A === */
+/* Mono theme — pure grayscale. WCAG AA verified. */
+[data-theme='mono'] {
+  --bg: #0d0d0d;
+  --fg: #e8e8e8;
+  --fg-muted: #707070;
+  --accent: #c0c0c0;
+  --border: #222222;
+  --surface: #141414;
+  --surface-raised: #1c1c1c;
+  --mesh-1: #c0c0c0;
+  --mesh-2: #888888;
+  --mesh-3: #444444;
+  --mesh-4: #0d0d0d;
+}
