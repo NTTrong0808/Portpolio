@@ -9,6 +9,7 @@ export function LenisInit() {
     if (prefersReduced) return
 
     let lenis: import('lenis').default | null = null
+    let rafId: number | null = null
 
     import('lenis').then(({ default: Lenis }) => {
       lenis = new Lenis({
@@ -22,12 +23,13 @@ export function LenisInit() {
 
       function raf(time: number) {
         lenis!.raf(time)
-        requestAnimationFrame(raf)
+        rafId = requestAnimationFrame(raf)
       }
-      requestAnimationFrame(raf)
+      rafId = requestAnimationFrame(raf)
     })
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
       if (lenis) {
         lenis.destroy()
         setLenis(null)

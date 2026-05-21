@@ -148,10 +148,7 @@ html.lenis body {
   white-space: pre;
 }
 
-/* Chapter body fade — GSAP sets opacity/y, CSS ensures no FOUC */
-.prose-content {
-  will-change: transform, opacity;
-}
+/* Chapter body: initial opacity set via inline style in Chapter.tsx to prevent FOUC */
 
 /* 404 block-char ASCII — crisp rendering across all themes */
 .ascii-404 {

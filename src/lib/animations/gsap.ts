@@ -1,6 +1,6 @@
 import type { gsap as GsapType } from 'gsap'
 import type { ScrollTrigger as ScrollTriggerType } from 'gsap/ScrollTrigger'
-import { getLenis } from './lenis'
+import { setScrollBridge } from './lenis'
 
 interface GSAPModules {
   gsap: typeof GsapType
@@ -19,13 +19,10 @@ export async function loadGSAP(): Promise<GSAPModules> {
 
   gsap.registerPlugin(ScrollTrigger)
 
-  // Sync GSAP ticker with Lenis for smooth scroll integration
-  const lenis = getLenis()
-  if (lenis) {
-    lenis.on('scroll', ScrollTrigger.update)
-    gsap.ticker.add((time: number) => lenis.raf(time * 1000))
-    gsap.ticker.lagSmoothing(0)
-  }
+  // Bridge: ScrollTrigger updates on Lenis scroll events.
+  // setScrollBridge handles both orderings (GSAP loads before/after Lenis).
+  setScrollBridge(ScrollTrigger.update)
+  gsap.ticker.lagSmoothing(0)
 
   loaded = { gsap, ScrollTrigger }
   return loaded

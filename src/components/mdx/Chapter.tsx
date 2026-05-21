@@ -19,7 +19,7 @@ export function Chapter({ title, children }: ChapterProps) {
 
     const section = sectionRef.current
     const body = bodyRef.current
-    let trigger: import('gsap/ScrollTrigger').ScrollTrigger | null = null
+    const triggers: import('gsap/ScrollTrigger').ScrollTrigger[] = []
     let cancelled = false
 
     import('@/lib/animations/gsap').then(({ loadGSAP }) =>
@@ -28,39 +28,43 @@ export function Chapter({ title, children }: ChapterProps) {
 
         gsap.set(body, { opacity: 0, y: 24 })
 
-        trigger = ScrollTrigger.create({
-          trigger: section,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
-            gsap.to(body, {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              ease: 'power3.out',
-            })
-          },
-        })
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: section,
+            start: 'top 80%',
+            once: true,
+            onEnter: () => {
+              gsap.to(body, {
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
+                ease: 'power3.out',
+              })
+            },
+          }),
+        )
 
         // Parallax on any inline images inside chapter
         const images = section.querySelectorAll<HTMLElement>('img')
         images.forEach((img) => {
-          ScrollTrigger.create({
-            trigger: img,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: true,
-            onUpdate: (self) => {
-              gsap.set(img, { y: self.progress * -30 })
-            },
-          })
+          triggers.push(
+            ScrollTrigger.create({
+              trigger: img,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+              onUpdate: (self) => {
+                gsap.set(img, { y: self.progress * -30 })
+              },
+            }),
+          )
         })
       }),
     )
 
     return () => {
       cancelled = true
-      trigger?.kill()
+      triggers.forEach((t) => t.kill())
     }
   }, [reduced])
 
@@ -74,7 +78,12 @@ export function Chapter({ title, children }: ChapterProps) {
           stagger={0.04}
         />
       )}
-      <div ref={bodyRef} className="prose-content">
+      {/* opacity:0 set via inline style before GSAP loads to prevent FOUC */}
+      <div
+        ref={bodyRef}
+        className="prose-content"
+        style={reduced ? undefined : { opacity: 0 }}
+      >
         {children}
       </div>
     </section>
